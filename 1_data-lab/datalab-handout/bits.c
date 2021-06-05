@@ -255,7 +255,8 @@ int isLessOrEqual(int x, int y) {
  *   Rating: 4 
  */
 int logicalNeg(int x) {
-  return 2;
+  /* [STAR] for all non-zero x, the sign bit of (x|-x) must be 1 */
+  return ((x | (~x + 1)) >> 31) + 1;
 }
 /* howManyBits - return the minimum number of bits required to represent x in
  *             two's complement
@@ -326,5 +327,8 @@ int floatFloat2Int(unsigned uf) {
  *   Rating: 4
  */
 unsigned floatPower2(int x) {
-    return 2;
+  /* the range of exponent is from (1-127) to (255-127) */
+  if (x < -126) return 0;               // too small
+  else if (x > 127) return 0xFF << 23;  // too large
+  else return (x + 127) << 23;
 }
