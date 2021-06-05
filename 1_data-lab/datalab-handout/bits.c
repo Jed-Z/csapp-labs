@@ -143,9 +143,10 @@ NOTES:
  *   Rating: 1
  */
 int bitXor(int x, int y) {
+  /* x ^ y = (~x & y) | (x & ~y) */
   int temp1 = ~x & y;
   int temp2 = x & ~y;
-  return ~(~temp1 & ~temp2);
+  return ~(~temp1 & ~temp2);  // De Morgan
 }
 /* 
  * tmin - return minimum two's complement integer 
@@ -154,6 +155,7 @@ int bitXor(int x, int y) {
  *   Rating: 1
  */
 int tmin(void) {
+  /* tmin is 100...0 */
   return 1 << 31;
 }
 //2
@@ -165,7 +167,7 @@ int tmin(void) {
  *   Rating: 1
  */
 int isTmax(int x) {
-  /* Used some tricks to reduce ops */
+  /* some tricks are used to reduce operations */
   int not_x = ~x;
   int ones = x | not_x;         // 111...1 (-1)
   int case1 = (x + 1) ^ not_x;  // x+1 != ~x
@@ -181,7 +183,8 @@ int isTmax(int x) {
  *   Rating: 2
  */
 int allOddBits(int x) {
-  int mask = 0xAA + (0xAA << 8) + (0xAA << 16) + (0xAA << 24);
+  /* use a mask where all odd-numbered bits are 1 */
+  int mask = 0xAA | (0xAA << 8) | (0xAA << 16) | (0xAA << 24);
   int all_not_odd = (x & mask) ^ mask;  // XOR is equivalent to bitwise inequality
   return !all_not_odd;
 }
@@ -283,9 +286,9 @@ unsigned floatScale2(unsigned uf) {
   if (exp == 0x7F800000) {  // infinity or NaN
     return uf;
   } else if (exp == 0x0) {    // denormalized
-    return sign | exp | (frac << 1);  // frac *= 2, might overlap with LSB of exp (tricky)
+    return sign | exp | (frac << 1);  // frac *= 2, it's ok to overlap with LSB of exp
   } else {  // normalized
-    return uf + (1 << 23);  // exp += 1, exp won't overflow since it is normalized
+    return uf + (1 << 23);  // exp += 1. exp won't overflow since it is normalized
   }
 }
 /* 
