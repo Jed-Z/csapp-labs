@@ -143,7 +143,9 @@ NOTES:
  *   Rating: 1
  */
 int bitXor(int x, int y) {
-  return 2;
+  int temp1 = ~x & y;
+  int temp2 = x & ~y;
+  return ~(~temp1 & ~temp2);
 }
 /* 
  * tmin - return minimum two's complement integer 
@@ -152,9 +154,7 @@ int bitXor(int x, int y) {
  *   Rating: 1
  */
 int tmin(void) {
-
-  return 2;
-
+  return 1 << 31;
 }
 //2
 /*
@@ -165,7 +165,12 @@ int tmin(void) {
  *   Rating: 1
  */
 int isTmax(int x) {
-  return 2;
+  /* Used some tricks to reduce ops */
+  int not_x = ~x;
+  int ones = x | not_x;         // 111...1 (-1)
+  int case1 = (x + 1) ^ not_x;  // x+1 != ~x
+  int case2 = x ^ ones;         // x != -1
+  return !(case1 | !case2);     // !case1 && case2
 }
 /* 
  * allOddBits - return 1 if all odd-numbered bits in word set to 1
@@ -176,7 +181,9 @@ int isTmax(int x) {
  *   Rating: 2
  */
 int allOddBits(int x) {
-  return 2;
+  int mask = 0xAA + (0xAA << 8) + (0xAA << 16) + (0xAA << 24);
+  int all_not_odd = (x & mask) ^ mask;  // XOR is equivalent to bitwise inequality
+  return !all_not_odd;
 }
 /* 
  * negate - return -x 
@@ -186,7 +193,7 @@ int allOddBits(int x) {
  *   Rating: 2
  */
 int negate(int x) {
-  return 2;
+  return ~x + 1;
 }
 //3
 /* 
@@ -199,6 +206,7 @@ int negate(int x) {
  *   Rating: 3
  */
 int isAsciiDigit(int x) {
+  int high = x ^ (x & 0xF0);
   return 2;
 }
 /* 
@@ -219,7 +227,15 @@ int conditional(int x, int y, int z) {
  *   Rating: 3
  */
 int isLessOrEqual(int x, int y) {
-  return 2;
+  // todo
+  // case 1: y - x >= 0
+  int mask = (1 << 31);        // The sign bit
+  int diff = y + (~x + 1);     // y - x
+  int case1 = !(diff & mask);  // The sign bit is 0
+
+  // case 2: underflow
+  int case2 = !!(x & mask) & !(y & mask);
+  return case1 | case2;
 }
 //4
 /* 
@@ -261,7 +277,16 @@ int howManyBits(int x) {
  *   Rating: 4
  */
 unsigned floatScale2(unsigned uf) {
-  return 2;
+  unsigned sign = uf & 0x80000000;
+  unsigned exp = uf & 0x7F800000;
+  unsigned frac = uf & 0x7FFFFF;
+  if (exp == 0x7F800000) {  // infinity or NaN
+    return uf;
+  } else if (exp == 0x0) {    // denormalized
+    return sign | exp | (frac << 1);  // frac *= 2, might overlap with LSB of exp (tricky)
+  } else {  // normalized
+    return uf + (1 << 23);  // exp += 1, exp won't overflow since it is normalized
+  }
 }
 /* 
  * floatFloat2Int - Return bit-level equivalent of expression (int) f
