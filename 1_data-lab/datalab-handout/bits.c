@@ -167,7 +167,7 @@ int tmin(void) {
  *   Rating: 1
  */
 int isTmax(int x) {
-  /* some tricks are used to reduce operations */
+  /* [STAR] some tricks are used to reduce operations */
   int not_x = ~x;
   int ones = x | not_x;         // 111...1 (-1)
   int case1 = (x + 1) ^ not_x;  // x+1 != ~x
@@ -209,7 +209,6 @@ int negate(int x) {
  *   Rating: 3
  */
 int isAsciiDigit(int x) {
-  int high = x ^ (x & 0xF0);
   return 2;
 }
 /* 
@@ -220,7 +219,9 @@ int isAsciiDigit(int x) {
  *   Rating: 3
  */
 int conditional(int x, int y, int z) {
-  return 2;
+  /* [STAR] make use of 00...0 or 11...1 */
+  int not_x = ~(!x) + 1;  // zero -> 11...1; non-zero -> 00...0
+  return (~not_x & y) | (not_x & z);
 }
 /* 
  * isLessOrEqual - if x <= y  then return 1, else return 0 
@@ -280,6 +281,7 @@ int howManyBits(int x) {
  *   Rating: 4
  */
 unsigned floatScale2(unsigned uf) {
+  /* [STAR] */
   unsigned sign = uf & 0x80000000;
   unsigned exp = uf & 0x7F800000;
   unsigned frac = uf & 0x7FFFFF;
