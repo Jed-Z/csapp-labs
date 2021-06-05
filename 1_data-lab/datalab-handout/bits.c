@@ -220,7 +220,7 @@ int isAsciiDigit(int x) {
  */
 int conditional(int x, int y, int z) {
   /* [STAR] make use of 00...0 or 11...1 */
-  int not_x = ~(!x) + 1;  // zero -> 11...1; non-zero -> 00...0
+  int not_x = ~(!x) + 1;  // x==0 -> 11...1; x!=0 -> 00...0
   return (~not_x & y) | (not_x & z);
 }
 /* 
@@ -231,14 +231,18 @@ int conditional(int x, int y, int z) {
  *   Rating: 3
  */
 int isLessOrEqual(int x, int y) {
-  // todo
-  // case 1: y - x >= 0
-  int mask = (1 << 31);        // The sign bit
-  int diff = y + (~x + 1);     // y - x
-  int case1 = !(diff & mask);  // The sign bit is 0
+  /* [STAR] two cases according to their signs */
+  int x_sign = x >> 31;
+  int y_sign = y >> 31;
+  int is_different = (x_sign ^ y_sign) & 1;  // whether x and y have different signs
 
-  // case 2: underflow
-  int case2 = !!(x & mask) & !(y & mask);
+  // case 1: signs are different, requires negative <= non-negative
+  int case1 = is_different & x_sign;
+
+  // case 2: signs are the same, requires y - x >= 0
+  int delta = y + (~x + 1);  // y - x
+  int case2 = !is_different & (~delta >> 31);
+
   return case1 | case2;
 }
 //4
