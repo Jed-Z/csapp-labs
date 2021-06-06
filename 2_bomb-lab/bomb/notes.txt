@@ -1,0 +1,13 @@
+[Notes for phase 4] Code of func4 is shown below (correctness not assured). Initial call is func4(A, 0, 14), 
+phase_4::func4(A, y, z) {
+  ecx = ( ( (z-y) + ( 31>>(z-y) ) ) >> 1 ) + y;
+  if (ecx <= A) {
+    if (ecx >= A) {
+      return 0;  // ecx == A
+    } else {
+      return 2 * func4(A, rcx+1, z) + 1;
+    }
+  } else {
+    return 2 * func(A, y, rcx-1);
+  }
+}
