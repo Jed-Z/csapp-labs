@@ -11,3 +11,21 @@ phase_4::func4(A, y, z) {
     return 2 * func(A, y, rcx-1);
   }
 }
+
+
+[Notes for secret phase] `y` is input by user. Initial call of fun7 should return 2.
+secret_phase::fun7(p, y) {
+  if (p == 0) {
+    return -1;  // 0xffffffff
+  } else {
+    if (*p <= y) {
+      if (*p == y) {  // *p == y
+        return 0;
+      } else {  // *p < y
+        return 2 * fun7(*(p+16), y) + 1;
+      }
+    } else {  // *p > y
+      return 2 * fun7(*(p+8), y);
+    }
+  }
+}
